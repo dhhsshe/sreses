@@ -2,54 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f1f3f4;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
     }
 
     .card {
       background: #fff;
-      width: 360px;
-      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      padding: 32px;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
+    /* Google logo */
     .logo {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: bold;
       margin-bottom: 20px;
     }
 
+    .logo span:nth-child(1) { color: #4285f4; }
+    .logo span:nth-child(2) { color: #ea4335; }
+    .logo span:nth-child(3) { color: #fbbc05; }
+    .logo span:nth-child(4) { color: #4285f4; }
+    .logo span:nth-child(5) { color: #34a853; }
+    .logo span:nth-child(6) { color: #ea4335; }
+
     h2 {
       margin: 0;
       font-weight: normal;
+      font-size: 24px;
     }
 
     p {
       color: #5f6368;
       font-size: 14px;
+      margin-top: 8px;
     }
 
     input {
       width: 100%;
-      padding: 12px;
-      margin-top: 15px;
+      padding: 14px 12px;
+      margin-top: 20px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 16px;
     }
 
+    input:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
     .link {
       color: #1a73e8;
       font-size: 14px;
-      margin-top: 10px;
+      margin-top: 12px;
       display: inline-block;
       text-decoration: none;
     }
@@ -58,24 +82,53 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 30px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     button {
       background: #1a73e8;
       color: white;
       border: none;
-      padding: 10px 22px;
+      padding: 10px 24px;
       border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
+    }
+
+    button:hover {
+      background: #1558c0;
+    }
+
+    /* 📱 Small screens */
+    @media (max-width: 480px) {
+      .card {
+        padding: 24px 20px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      .logo {
+        font-size: 30px;
+      }
+
+      .actions {
+        flex-direction: column;
+        align-items: flex-end;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <div class="logo">G</div>
+    <div class="logo">
+      <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+    </div>
+
     <h2>Sign in</h2>
     <p>to continue</p>
 
@@ -85,7 +138,7 @@
 
     <div class="actions">
       <a class="link" href="#">Create account</a>
-      <button href="#">Next</button>
+      <button>Next</button>
     </div>
   </div>
 

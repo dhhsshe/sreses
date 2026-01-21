@@ -1,0 +1,115 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f3f4;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Logo */
+.logo {
+  margin-bottom: 20px;
+}
+
+/* Headings */
+h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: normal;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: #5f6368;
+  font-size: 14px;
+}
+
+/* Input */
+input {
+  width: 100%;
+  padding: 14px 12px;
+  margin-top: 20px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+/* Links */
+.link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Button */
+button {
+  background: #1a73e8;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1558c0;
+}
+
+/* 📱 Mobile adjustments */
+@media (max-width: 480px) {
+  .card {
+    padding: 24px 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .logo svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

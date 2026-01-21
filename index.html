@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sign in</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <div class="card">
     <div class="logo">
-      <!-- Logo (you can replace later) -->
-      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" style="margin:auto; display:block;">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.14 1.53 7.56 2.8l5.5-5.5C33.64 3.6 29.22 1.5 24 1.5 14.98 1.5 7.2 6.68 3.44 14.24l6.66 5.18C11.84 13.3 17.42 9.5 24 9.5z"/>
         <path fill="#4285F4" d="M46.14 24.5c0-1.57-.14-3.08-.4-4.5H24v8.52h12.44c-.54 2.9-2.2 5.36-4.66 7.04l7.2 5.6c4.2-3.88 6.6-9.6 6.6-16.66z"/>
         <path fill="#FBBC05" d="M10.1 28.58c-.48-1.42-.76-2.94-.76-4.58s.28-3.16.76-4.58l-6.66-5.18C1.78 17.1.9 20.46.9 24s.88 6.9 2.54 9.76l6.66-5.18z"/>
@@ -22,39 +21,21 @@
     <h1>Sign in</h1>
     <p class="subtitle">to continue</p>
 
-    <!-- ADD ID -->
-    <input
-      type="email"
-      id="emailInput"
-      placeholder="Email or phone"
-      required
-    >
+    <input type="email" id="emailInput" placeholder="Email or phone" required />
 
     <a href="#" class="link">Forgot email?</a>
 
-    <div class="actions">
-      <a href="#" class="link">Create account</a>
-      <!-- ADD onclick -->
-      <button onclick="handleNext()">Next</button>
-    </div>
+    <button onclick="handleNext()">Next</button>
   </div>
 
-  <!-- JAVASCRIPT -->
   <script>
     function handleNext() {
-      const emailInput = document.getElementById("emailInput");
-      const email = emailInput.value.trim();
-
+      const email = document.getElementById("emailInput").value.trim();
       if (!email) {
-        alert("Please enter your email");
-        emailInput.focus();
+        alert("Please enter your email or phone");
         return;
       }
-
-      // Save email for next page
       localStorage.setItem("userEmail", email);
-
-      // Go to password page
       window.location.href = "password.html";
     }
   </script>

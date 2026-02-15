@@ -100,7 +100,6 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Verification successful! (demo mode)");
           localStorage.removeItem("demoEmail");
           window.location.href = "https://mail.google.com/";
         } else {

